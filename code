@@ -1,0 +1,143 @@
+package tictactoe;
+
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        //leeg veld
+        char[][] gameGrid = createEmptyGrid();
+
+        displayGameGrid(gameGrid);
+        //welke speler aan de beurt(xTurn of !xTurn)
+        boolean xTurn = true;
+        //invoer gebruiker, na geldige zet
+        while (true) {
+            int row;
+            int col;
+
+            while (true) {
+                System.out.print("Enter the coordinates: ");
+                row = scanner.nextInt();
+                col = scanner.nextInt();
+
+                if (isValidMove(gameGrid, row, col)) {
+                    if (xTurn) {
+                        gameGrid[row - 1][col - 1] = 'X';
+                    } else {
+                        gameGrid[row - 1][col - 1] = 'O';
+                    }
+                    xTurn = !xTurn;
+                    break;
+                }
+            }
+
+            displayGameGrid(gameGrid);
+
+            //huidig spel opslaan-analyseren
+            String gameState = analyzeGameState(gameGrid);
+
+            if (!gameState.equals("Game not finished")) {
+                System.out.println(gameState);
+                break;
+            }
+        }
+    }
+               //leeg bord methode
+    public static char[][] createEmptyGrid() {
+        char[][] gameGrid = new char[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                gameGrid[i][j] = '_';
+            }
+        }
+        return gameGrid;
+    }
+                //display methode
+    public static void displayGameGrid(char[][] gameGrid) {
+        System.out.println("---------");
+        for (char[] row : gameGrid) {
+            System.out.print("| ");
+            for (char cell : row) {
+                System.out.print(cell + " ");
+            }
+            System.out.println("|");
+        }
+        System.out.println("---------");
+    }
+            //analyze methode
+    public static String analyzeGameState(char[][] gameGrid) {
+        if (isImpossible(gameGrid)) {
+            return "Impossible";
+        }
+            //huidige status bepalen. passende status teruggeven
+        if (checkWinner(gameGrid, 'X')) {
+            return "X wins";
+        } else if (checkWinner(gameGrid, 'O')) {
+            return "O wins";
+        }
+
+        if (isGridFull(gameGrid)) {
+            return "Draw";
+        }
+
+        return "Game not finished";
+    }
+                 //winaarscheck. roep methode aan om te controleren
+    public static boolean checkWinner(char[][] gameGrid, char player) {
+        for (int i = 0; i < 3; i++) {
+            if ((gameGrid[i][0] == player && gameGrid[i][1] == player && gameGrid[i][2] == player) ||
+                    (gameGrid[0][i] == player && gameGrid[1][i] == player && gameGrid[2][i] == player)) {
+                return true;
+            }
+        }
+
+        return (gameGrid[0][0] == player && gameGrid[1][1] == player && gameGrid[2][2] == player) ||
+                (gameGrid[0][2] == player && gameGrid[1][1] == player && gameGrid[2][0] == player);
+    }
+              // gridisfull methode
+    public static boolean isGridFull(char[][] gameGrid) {
+        for (char[] row : gameGrid) {
+            for (char cell : row) {
+                if (cell == '_') {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    //onmogelijk check
+    public static boolean isImpossible(char[][] gameGrid) {
+        int countX = 0;
+        int countO = 0;
+
+        for (char[] row : gameGrid) {
+            for (char cell : row) {
+                if (cell == 'X') {
+                    countX++;
+                } else if (cell == 'O') {
+                    countO++;
+                }
+            }
+        }
+        //vastleggen resultaat van controle
+        boolean xWins = checkWinner(gameGrid, 'X');
+        boolean oWins = checkWinner(gameGrid, 'O');
+         // verschil tussen aantal zetten van 'X'O'> dan 1
+        return (xWins && oWins) || Math.abs(countX - countO) >= 2;
+    }
+               // geldige zet methode
+    public static boolean isValidMove(char[][] gameGrid, int row, int col) {
+        if (row < 1 || row > 3 || col < 1 || col > 3) {
+            System.out.println("Coordinates should be from 1 to 3!");
+            return false;
+        }
+
+        if (gameGrid[row - 1][col - 1] != '_') {
+            System.out.println("This cell is occupied! Choose another one!");
+            return false;
+        }
+
+        return true;
+    }
+}
